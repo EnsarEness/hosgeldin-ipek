@@ -98,12 +98,30 @@ function updateCountdown() {
     document.getElementById('countdownTitle').textContent = 'Aramızda';
     document.getElementById('birthButton').style.display = 'none';
 
+    // Sıfırla butonunu göster
+    const resetBtn = document.getElementById('resetButton');
+    if (resetBtn) resetBtn.style.display = 'inline-block';
+
     // Doğum saatini de güncelle
     const birthHour = birthDate.getHours().toString().padStart(2, '0');
     const birthMin = birthDate.getMinutes().toString().padStart(2, '0');
     const birthTimeEl = document.getElementById('birthTime');
     if (birthTimeEl) {
         birthTimeEl.textContent = `${birthHour}:${birthMin}`;
+    }
+}
+
+// Sayacı sıfırla - yanlışlıkla başlatıldıysa geri al
+function resetBirth() {
+    if (confirm('Sayacı sıfırlamak istediğine emin misin? ⏪')) {
+        localStorage.removeItem('ipek_birth_time');
+        // Doğum saatini de temizle
+        const birthTimeEl = document.getElementById('birthTime');
+        if (birthTimeEl) birthTimeEl.textContent = '--:--';
+        // Sıfırla butonunu gizle
+        const resetBtn = document.getElementById('resetButton');
+        if (resetBtn) resetBtn.style.display = 'none';
+        updateCountdown();
     }
 }
 
@@ -210,133 +228,267 @@ function animateNumber(element, target, duration = 1000) {
     requestAnimationFrame(update);
 }
 
-// ===== MUSIC BOX LULLABY =====
+// ===== MUSIC BOX - FÜR ELISE (BEETHOVEN) =====
 function createMusicBox() {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let audioCtx = null;
+    let masterGain = null;
 
-    // "Twinkle Twinkle Little Star" melody - music box style
-    // Notes as frequencies (Hz)
+    // Note frequencies (Hz)
     const noteFreqs = {
-        'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
-        'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
-        'C5': 523.25, 'D5': 587.33, 'E5': 659.25
+        'C4': 261.63, 'Cs4': 277.18, 'D4': 293.66, 'Ds4': 311.13,
+        'E4': 329.63, 'F4': 349.23, 'Fs4': 369.99, 'G4': 392.00,
+        'Gs4': 415.30, 'A4': 440.00, 'Bb4': 466.16, 'B4': 493.88,
+        'C5': 523.25, 'Cs5': 554.37, 'D5': 587.33, 'Ds5': 622.25,
+        'E5': 659.25, 'F5': 698.46, 'Fs5': 739.99, 'G5': 783.99,
+        'Gs5': 830.61, 'A5': 880.00, 'B5': 987.77,
+        'C3': 130.81, 'E3': 164.81, 'G3': 196.00, 'A3': 220.00,
+        'B3': 246.94, 'D3': 146.83, 'Gs3': 207.65,
+        'C6': 1046.50, 'D6': 1174.66, 'E6': 1318.51
     };
 
-    // Lullaby melody: Twinkle Twinkle Little Star
+    // Für Elise - Beethoven (Main Theme - complete first section)
+    const t = 0.22; // base tempo unit
     const melody = [
-        { note: 'C4', dur: 0.4 }, { note: 'C4', dur: 0.4 },
-        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
-        { note: 'A4', dur: 0.4 }, { note: 'A4', dur: 0.4 },
-        { note: 'G4', dur: 0.8 },
-        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
-        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
-        { note: 'D4', dur: 0.4 }, { note: 'D4', dur: 0.4 },
-        { note: 'C4', dur: 0.8 },
-        // Second part
-        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
-        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
-        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
-        { note: 'D4', dur: 0.8 },
-        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
-        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
-        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
-        { note: 'D4', dur: 0.8 },
-        // Repeat first part
-        { note: 'C4', dur: 0.4 }, { note: 'C4', dur: 0.4 },
-        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
-        { note: 'A4', dur: 0.4 }, { note: 'A4', dur: 0.4 },
-        { note: 'G4', dur: 0.8 },
-        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
-        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
-        { note: 'D4', dur: 0.4 }, { note: 'D4', dur: 0.4 },
-        { note: 'C4', dur: 0.8 },
+        // Opening motif (the famous part)
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'B4', dur: t },
+        { note: 'D5', dur: t }, { note: 'C5', dur: t },
+        { note: 'A4', dur: t * 3 },
+
+        // A minor arpeggio resolution
+        { note: 'C4', dur: t }, { note: 'E4', dur: t },
+        { note: 'A4', dur: t }, { note: 'B4', dur: t * 3 },
+
+        { note: 'E4', dur: t }, { note: 'Gs4', dur: t },
+        { note: 'B4', dur: t }, { note: 'C5', dur: t * 3 },
+
+        // Second phrase
+        { note: 'E4', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'B4', dur: t },
+        { note: 'D5', dur: t }, { note: 'C5', dur: t },
+        { note: 'A4', dur: t * 3 },
+
+        { note: 'C4', dur: t }, { note: 'E4', dur: t },
+        { note: 'A4', dur: t }, { note: 'B4', dur: t * 3 },
+
+        { note: 'E4', dur: t }, { note: 'C5', dur: t },
+        { note: 'B4', dur: t }, { note: 'A4', dur: t * 3 },
+
+        // Pause
+        { note: null, dur: t * 2 },
+
+        // Repeat the opening motif
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'B4', dur: t },
+        { note: 'D5', dur: t }, { note: 'C5', dur: t },
+        { note: 'A4', dur: t * 3 },
+
+        { note: 'C4', dur: t }, { note: 'E4', dur: t },
+        { note: 'A4', dur: t }, { note: 'B4', dur: t * 3 },
+
+        { note: 'E4', dur: t }, { note: 'Gs4', dur: t },
+        { note: 'B4', dur: t }, { note: 'C5', dur: t * 3 },
+
+        // Second phrase again
+        { note: 'E4', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'B4', dur: t },
+        { note: 'D5', dur: t }, { note: 'C5', dur: t },
+        { note: 'A4', dur: t * 3 },
+
+        { note: 'C4', dur: t }, { note: 'E4', dur: t },
+        { note: 'A4', dur: t }, { note: 'B4', dur: t * 3 },
+
+        { note: 'E4', dur: t }, { note: 'C5', dur: t },
+        { note: 'B4', dur: t }, { note: 'A4', dur: t * 3 },
+
+        // Transition to B section
+        { note: null, dur: t },
+
+        // B Section - lyrical part
+        { note: 'B4', dur: t }, { note: 'C5', dur: t },
+        { note: 'D5', dur: t }, { note: 'E5', dur: t * 3 },
+
+        { note: 'G4', dur: t }, { note: 'F5', dur: t },
+        { note: 'E5', dur: t }, { note: 'D5', dur: t * 3 },
+
+        { note: 'F4', dur: t }, { note: 'E5', dur: t },
+        { note: 'D5', dur: t }, { note: 'C5', dur: t * 3 },
+
+        { note: 'E4', dur: t }, { note: 'D5', dur: t },
+        { note: 'C5', dur: t }, { note: 'B4', dur: t * 3 },
+
+        // Back to opening motif
+        { note: null, dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'Ds5', dur: t },
+        { note: 'E5', dur: t }, { note: 'B4', dur: t },
+        { note: 'D5', dur: t }, { note: 'C5', dur: t },
+        { note: 'A4', dur: t * 3 },
+
+        { note: 'C4', dur: t }, { note: 'E4', dur: t },
+        { note: 'A4', dur: t }, { note: 'B4', dur: t * 3 },
+
+        { note: 'E4', dur: t }, { note: 'C5', dur: t },
+        { note: 'B4', dur: t }, { note: 'A4', dur: t * 4 },
+
+        // Final pause before loop
+        { note: null, dur: t * 6 },
     ];
 
+    function initAudio() {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            masterGain.connect(audioCtx.destination);
+            return true;
+        } catch (e) {
+            console.error('AudioContext oluşturulamadı:', e);
+            return false;
+        }
+    }
+
     function playNote(freq, startTime, duration) {
-        // Music box bell-like sound
-        const osc = audioCtx.createOscillator();
+        if (!freq || !audioCtx) return;
+
+        // Oscillator 1: Main piano-like tone
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, startTime);
+        gain1.gain.setValueAtTime(0, startTime);
+        gain1.gain.linearRampToValueAtTime(0.3, startTime + 0.012);
+        gain1.gain.exponentialRampToValueAtTime(0.01, startTime + duration * 2.2);
+        osc1.connect(gain1).connect(masterGain);
+        osc1.start(startTime);
+        osc1.stop(startTime + duration * 3);
+
+        // Oscillator 2: 2nd harmonic for warmth
         const osc2 = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        const gainNode2 = audioCtx.createGain();
-
-        // Main tone - sine for softness
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, startTime);
-
-        // Harmonic overtone for music box sparkle
+        const gain2 = audioCtx.createGain();
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(freq * 3, startTime); // 3rd harmonic
-
-        // Gentle envelope
-        gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 1.5);
-
-        // Softer overtone
-        gainNode2.gain.setValueAtTime(0, startTime);
-        gainNode2.gain.linearRampToValueAtTime(0.03, startTime + 0.01);
-        gainNode2.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.8);
-
-        osc.connect(gainNode).connect(audioCtx.destination);
-        osc2.connect(gainNode2).connect(audioCtx.destination);
-
-        osc.start(startTime);
-        osc.stop(startTime + duration * 2);
+        osc2.frequency.setValueAtTime(freq * 2, startTime);
+        gain2.gain.setValueAtTime(0, startTime);
+        gain2.gain.linearRampToValueAtTime(0.06, startTime + 0.01);
+        gain2.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 1.5);
+        osc2.connect(gain2).connect(masterGain);
         osc2.start(startTime);
-        osc2.stop(startTime + duration * 2);
+        osc2.stop(startTime + duration * 3);
+
+        // Oscillator 3: Sparkle overtone
+        const osc3 = audioCtx.createOscillator();
+        const gain3 = audioCtx.createGain();
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(freq * 3, startTime);
+        gain3.gain.setValueAtTime(0, startTime);
+        gain3.gain.linearRampToValueAtTime(0.02, startTime + 0.008);
+        gain3.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.8);
+        osc3.connect(gain3).connect(masterGain);
+        osc3.start(startTime);
+        osc3.stop(startTime + duration * 3);
     }
 
     let loopTimeout = null;
     let isPlaying = false;
 
     function playMelody() {
+        if (!audioCtx || !isPlaying) return;
+
         let time = audioCtx.currentTime + 0.1;
         melody.forEach(({ note, dur }) => {
-            playNote(noteFreqs[note], time, dur);
+            if (note) {
+                playNote(noteFreqs[note], time, dur);
+            }
             time += dur;
         });
-        // Total melody duration
+
         const totalDur = melody.reduce((sum, n) => sum + n.dur, 0);
-        // Loop after a small pause
+
         loopTimeout = setTimeout(() => {
             if (isPlaying) playMelody();
         }, totalDur * 1000 + 500);
     }
 
     return {
-        play() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            isPlaying = true;
-            playMelody();
+        async play() {
+            try {
+                if (!audioCtx) {
+                    if (!initAudio()) return;
+                }
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+                isPlaying = true;
+                playMelody();
+            } catch (e) {
+                console.error('Müzik başlatılamadı:', e);
+            }
         },
         stop() {
             isPlaying = false;
-            if (loopTimeout) clearTimeout(loopTimeout);
+            if (loopTimeout) {
+                clearTimeout(loopTimeout);
+                loopTimeout = null;
+            }
+            // Hemen sesi kes
+            if (masterGain) {
+                masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+                setTimeout(() => {
+                    if (masterGain && !isPlaying) {
+                        masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                    }
+                }, 150);
+            }
         },
         get playing() { return isPlaying; }
     };
 }
 
+// Global music box reference for keyboard control
+let globalMusicBox = null;
+
+async function toggleMusic() {
+    const btn = document.getElementById('musicToggle');
+    if (!btn) return;
+
+    if (!globalMusicBox) {
+        globalMusicBox = createMusicBox();
+    }
+
+    if (globalMusicBox.playing) {
+        globalMusicBox.stop();
+        btn.classList.remove('playing');
+        btn.querySelector('.music-icon').textContent = '🎵';
+    } else {
+        await globalMusicBox.play();
+        btn.classList.add('playing');
+        btn.querySelector('.music-icon').textContent = '🎶';
+    }
+}
+
 function setupMusicToggle() {
     const btn = document.getElementById('musicToggle');
-    let musicBox = null;
+    if (!btn) return;
 
-    btn.addEventListener('click', (e) => {
+    // Click ile müzik aç/kapa
+    btn.addEventListener('click', async (e) => {
         e.stopPropagation();
+        e.preventDefault();
+        await toggleMusic();
+    });
 
-        if (!musicBox) {
-            musicBox = createMusicBox();
-        }
-
-        if (musicBox.playing) {
-            musicBox.stop();
-            btn.classList.remove('playing');
-            btn.querySelector('.music-icon').textContent = '🎵';
-        } else {
-            musicBox.play();
-            btn.classList.add('playing');
-            btn.querySelector('.music-icon').textContent = '🎶';
-        }
+    // Herhangi bir tuşa basınca müzik aç/kapa
+    document.addEventListener('keydown', async (e) => {
+        // Input veya textarea'daysa çalışmasın
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        await toggleMusic();
     });
 }
 
