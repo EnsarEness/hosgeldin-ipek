@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoş Geldin İpek 🌸 - Dünyaya Hoş Geldin Prensesimiz</title>
+    <meta name="description" content="Dünyaya hoş geldin küçük prensesimiz İpek! Seni çok seviyoruz. 🌷">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Floating Petals Container -->
+    <div class="petals-container" id="petalsContainer"></div>
+
+    <!-- Sparkles Container -->
+    <div class="sparkles-container" id="sparklesContainer"></div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="baby-icon">
+                <svg viewBox="0 0 100 120" class="footprints">
+                    <!-- Left foot -->
+                    <ellipse cx="30" cy="55" rx="14" ry="22" fill="currentColor" transform="rotate(-10 30 55)" />
+                    <circle cx="18" cy="30" r="5" fill="currentColor" />
+                    <circle cx="24" cy="26" r="4.5" fill="currentColor" />
+                    <circle cx="31" cy="25" r="4.5" fill="currentColor" />
+                    <circle cx="37" cy="27" r="4" fill="currentColor" />
+                    <circle cx="42" cy="32" r="3.5" fill="currentColor" />
+                    <!-- Right foot -->
+                    <ellipse cx="70" cy="55" rx="14" ry="22" fill="currentColor" transform="rotate(10 70 55)" />
+                    <circle cx="58" cy="32" r="3.5" fill="currentColor" />
+                    <circle cx="63" cy="27" r="4" fill="currentColor" />
+                    <circle cx="69" cy="25" r="4.5" fill="currentColor" />
+                    <circle cx="76" cy="26" r="4.5" fill="currentColor" />
+                    <circle cx="82" cy="30" r="5" fill="currentColor" />
+                </svg>
+            </div>
+            <p class="subtitle fade-in">Dünyaya Hoş Geldin</p>
+            <h1 class="main-title">
+                <span class="title-line">Hoş Geldin</span>
+                <span class="title-name">İpek</span>
+            </h1>
+            <div class="heart-divider">
+                <span class="heart">♥</span>
+                <span class="line"></span>
+                <span class="heart">♥</span>
+                <span class="line"></span>
+                <span class="heart">♥</span>
+            </div>
+            <p class="welcome-text fade-in">Seni beklerken geçen her an, sevgiyle doluydu.<br>Artık aramızdasın, küçük
+                prensesimiz!</p>
+            <a href="#details" class="scroll-btn">
+                <span>↓</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Birth Details Section -->
+    <section class="details-section" id="details">
+        <div class="section-header">
+            <div class="flower-decoration left">🌸</div>
+            <h2>Doğum Bilgileri</h2>
+            <div class="flower-decoration right">🌸</div>
+        </div>
+
+        <div class="details-card glass-card">
+            <div class="card-inner">
+                <div class="detail-item">
+                    <div class="detail-icon">📅</div>
+                    <div class="detail-label">Doğum Tarihi</div>
+                    <div class="detail-value" id="birthDate">14 Şubat 2026</div>
+                </div>
+                <div class="detail-divider"></div>
+                <div class="detail-item">
+                    <div class="detail-icon">🕐</div>
+                    <div class="detail-label">Doğum Saati</div>
+                    <div class="detail-value" id="birthTime">--:--</div>
+                </div>
+                <div class="detail-divider"></div>
+                <div class="detail-item">
+                    <div class="detail-icon">⚖️</div>
+                    <div class="detail-label">Kilo</div>
+                    <div class="detail-value" id="birthWeight">-- kg</div>
+                </div>
+                <div class="detail-divider"></div>
+                <div class="detail-item">
+                    <div class="detail-icon">📏</div>
+                    <div class="detail-label">Boy</div>
+                    <div class="detail-value" id="birthHeight">-- cm</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Countdown / Days Since Birth -->
+    <section class="countdown-section" id="countdown">
+        <div class="section-header">
+            <div class="flower-decoration left">🌷</div>
+            <h2 id="countdownTitle">İpek'i Bekliyoruz</h2>
+            <div class="flower-decoration right">🌷</div>
+        </div>
+
+        <div class="countdown-card glass-card">
+            <div class="countdown-grid">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">0</span>
+                    <span class="countdown-label">Gün</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">0</span>
+                    <span class="countdown-label">Saat</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">0</span>
+                    <span class="countdown-label">Dakika</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">0</span>
+                    <span class="countdown-label">Saniye</span>
+                </div>
+            </div>
+            <p class="countdown-text" id="countdownText">İpek'in doğmasını bekliyoruz... 💕</p>
+
+            <button class="birth-button" id="birthButton" onclick="recordBirth()">
+                🎀 İpek Doğdu! �
+            </button>
+        </div>
+    </section>
+
+    <!-- Message Section -->
+    <section class="message-section" id="message">
+        <div class="section-header">
+            <div class="flower-decoration left">💐</div>
+            <h2>Sana Mektup</h2>
+            <div class="flower-decoration right">💐</div>
+        </div>
+
+        <div class="message-card glass-card">
+            <div class="message-content">
+                <p class="message-greeting">Canım İpek'im,</p>
+                <p>Daha gözlerini açmadan kalbimizi çaldın. Seni beklerken heyecanla sayılan her gün, her saat artık en
+                    güzel anılarımız oldu.</p>
+                <p>Bu dünyada seni seven o kadar çok insan var ki... Hepsinin gözleri seni görünce parlıyor, kalpleri
+                    sevinçle dolup taşıyor.</p>
+                <p>Sen bizim en güzel çiçeğimizsin, en tatlı rüyamızın gerçeğe dönüşmüş halisin. Adın gibi ipek gibi
+                    yumuşacık bir hayatın olsun.</p>
+                <p>Seni çok seviyoruz! 💕</p>
+                <p class="message-signature">— Ailen</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Photo Gallery Placeholder -->
+    <section class="gallery-section" id="gallery">
+        <div class="section-header">
+            <div class="flower-decoration left">📸</div>
+            <h2>Anılarımız</h2>
+            <div class="flower-decoration right">📸</div>
+        </div>
+
+        <div class="gallery-grid">
+            <div class="gallery-item glass-card">
+                <div class="gallery-placeholder">
+                    <span class="placeholder-icon">🍼</span>
+                    <span class="placeholder-text">İlk Gün</span>
+                </div>
+            </div>
+            <div class="gallery-item glass-card">
+                <div class="gallery-placeholder">
+                    <span class="placeholder-icon">👶</span>
+                    <span class="placeholder-text">İlk Gülümseme</span>
+                </div>
+            </div>
+            <div class="gallery-item glass-card">
+                <div class="gallery-placeholder">
+                    <span class="placeholder-icon">👣</span>
+                    <span class="placeholder-text">Minik Ayaklar</span>
+                </div>
+            </div>
+            <div class="gallery-item glass-card">
+                <div class="gallery-placeholder">
+                    <span class="placeholder-icon">💤</span>
+                    <span class="placeholder-text">Tatlı Uykular</span>
+                </div>
+            </div>
+            <div class="gallery-item glass-card">
+                <div class="gallery-placeholder">
+                    <span class="placeholder-icon">🎀</span>
+                    <span class="placeholder-text">Prensesimiz</span>
+                </div>
+            </div>
+            <div class="gallery-item glass-card">
+                <div class="gallery-placeholder">
+                    <span class="placeholder-icon">👨‍👩‍👧</span>
+                    <span class="placeholder-text">Ailemiz</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wishes Section -->
+    <section class="wishes-section" id="wishes">
+        <div class="section-header">
+            <div class="flower-decoration left">✨</div>
+            <h2>Dileklerimiz</h2>
+            <div class="flower-decoration right">✨</div>
+        </div>
+
+        <div class="wishes-grid">
+            <div class="wish-card glass-card">
+                <div class="wish-icon">🌟</div>
+                <p>Yıldızlar kadar parlak bir geleceğin olsun</p>
+            </div>
+            <div class="wish-card glass-card">
+                <div class="wish-icon">🦋</div>
+                <p>Kelebekler gibi özgür, çiçekler gibi güzel ol</p>
+            </div>
+            <div class="wish-card glass-card">
+                <div class="wish-icon">🌈</div>
+                <p>Gökkuşağının tüm renkleriyle dolu bir hayatın olsun</p>
+            </div>
+            <div class="wish-card glass-card">
+                <div class="wish-icon">💖</div>
+                <p>Sevgiyle dolu, sağlıklı ve mutlu bir ömür süresin</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-flowers">🌸 🌷 🌺 🌸 🌷</div>
+            <p class="footer-text">İpek'e sevgiyle yapıldı</p>
+            <p class="footer-date">Şubat 2026</p>
+            <div class="footer-hearts">💕</div>
+        </div>
+    </footer>
+
+    <!-- Background Music Toggle -->
+    <button class="music-toggle" id="musicToggle" title="Müzik">
+        <span class="music-icon">🎵</span>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
