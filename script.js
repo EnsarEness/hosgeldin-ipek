@@ -210,20 +210,132 @@ function animateNumber(element, target, duration = 1000) {
     requestAnimationFrame(update);
 }
 
-// ===== MUSIC TOGGLE (Placeholder) =====
+// ===== MUSIC BOX LULLABY =====
+function createMusicBox() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // "Twinkle Twinkle Little Star" melody - music box style
+    // Notes as frequencies (Hz)
+    const noteFreqs = {
+        'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+        'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+        'C5': 523.25, 'D5': 587.33, 'E5': 659.25
+    };
+
+    // Lullaby melody: Twinkle Twinkle Little Star
+    const melody = [
+        { note: 'C4', dur: 0.4 }, { note: 'C4', dur: 0.4 },
+        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
+        { note: 'A4', dur: 0.4 }, { note: 'A4', dur: 0.4 },
+        { note: 'G4', dur: 0.8 },
+        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
+        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
+        { note: 'D4', dur: 0.4 }, { note: 'D4', dur: 0.4 },
+        { note: 'C4', dur: 0.8 },
+        // Second part
+        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
+        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
+        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
+        { note: 'D4', dur: 0.8 },
+        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
+        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
+        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
+        { note: 'D4', dur: 0.8 },
+        // Repeat first part
+        { note: 'C4', dur: 0.4 }, { note: 'C4', dur: 0.4 },
+        { note: 'G4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
+        { note: 'A4', dur: 0.4 }, { note: 'A4', dur: 0.4 },
+        { note: 'G4', dur: 0.8 },
+        { note: 'F4', dur: 0.4 }, { note: 'F4', dur: 0.4 },
+        { note: 'E4', dur: 0.4 }, { note: 'E4', dur: 0.4 },
+        { note: 'D4', dur: 0.4 }, { note: 'D4', dur: 0.4 },
+        { note: 'C4', dur: 0.8 },
+    ];
+
+    function playNote(freq, startTime, duration) {
+        // Music box bell-like sound
+        const osc = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        const gainNode2 = audioCtx.createGain();
+
+        // Main tone - sine for softness
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        // Harmonic overtone for music box sparkle
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 3, startTime); // 3rd harmonic
+
+        // Gentle envelope
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 1.5);
+
+        // Softer overtone
+        gainNode2.gain.setValueAtTime(0, startTime);
+        gainNode2.gain.linearRampToValueAtTime(0.03, startTime + 0.01);
+        gainNode2.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.8);
+
+        osc.connect(gainNode).connect(audioCtx.destination);
+        osc2.connect(gainNode2).connect(audioCtx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration * 2);
+        osc2.start(startTime);
+        osc2.stop(startTime + duration * 2);
+    }
+
+    let loopTimeout = null;
+    let isPlaying = false;
+
+    function playMelody() {
+        let time = audioCtx.currentTime + 0.1;
+        melody.forEach(({ note, dur }) => {
+            playNote(noteFreqs[note], time, dur);
+            time += dur;
+        });
+        // Total melody duration
+        const totalDur = melody.reduce((sum, n) => sum + n.dur, 0);
+        // Loop after a small pause
+        loopTimeout = setTimeout(() => {
+            if (isPlaying) playMelody();
+        }, totalDur * 1000 + 500);
+    }
+
+    return {
+        play() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            isPlaying = true;
+            playMelody();
+        },
+        stop() {
+            isPlaying = false;
+            if (loopTimeout) clearTimeout(loopTimeout);
+        },
+        get playing() { return isPlaying; }
+    };
+}
+
 function setupMusicToggle() {
     const btn = document.getElementById('musicToggle');
-    let isPlaying = false;
+    let musicBox = null;
 
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        isPlaying = !isPlaying;
-        btn.classList.toggle('playing', isPlaying);
 
-        if (isPlaying) {
-            btn.querySelector('.music-icon').textContent = '🎶';
-        } else {
+        if (!musicBox) {
+            musicBox = createMusicBox();
+        }
+
+        if (musicBox.playing) {
+            musicBox.stop();
+            btn.classList.remove('playing');
             btn.querySelector('.music-icon').textContent = '🎵';
+        } else {
+            musicBox.play();
+            btn.classList.add('playing');
+            btn.querySelector('.music-icon').textContent = '🎶';
         }
     });
 }
